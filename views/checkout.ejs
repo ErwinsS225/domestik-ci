@@ -1,0 +1,54 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<div class="checkout">
+  <% if (H.PRICES.manual_review) { %>
+    <span class="demo-pill" style="background:#e6f7ee; color:#067a48">💸 PAIEMENT RÉEL — validation par nos équipes</span>
+  <% } else { %>
+    <span class="demo-pill">🧪 MODE DÉMONSTRATION — aucun paiement réel</span>
+  <% } %>
+  <div class="wave-card">
+    <div class="brand"><span class="dot"></span>Wave</div>
+    <p style="opacity:.85; font-size:13.5px">Paiement mobile sécurisé — Côte d'Ivoire</p>
+    <div class="wave-amount"><%= H.fcfa(item.amount) %></div>
+    <p style="font-size:13px; opacity:.9; margin-bottom:10px"><%= item.label %></p>
+    <% if (item.multi && item.multi.length) { %>
+      <ul style="font-size:12px; opacity:.85; margin:0 0 12px; padding-left:18px">
+        <% item.multi.forEach(t => { %><li>• <%= t %></li><% }) %>
+      </ul>
+    <% } %>
+
+    <% if (H.PRICES.manual_review) { %>
+      <div style="background:rgba(255,255,255,.15); border-radius:14px; padding:14px; margin:14px 0; font-size:13.5px">
+        <b>Comment payer :</b>
+        <ol style="margin:8px 0 0; padding-left:20px; line-height:1.7">
+          <li>Ouvrez Wave et envoyez <b><%= H.fcfa(item.amount) %></b> au <b><%= H.PRICES.platform_phone %></b></li>
+          <li>Indiquez ci-dessous le numéro Wave utilisé</li>
+          <li>Notre équipe valide sous 2 h ouvrées (8 h – 18 h)</li>
+        </ol>
+      </div>
+      <form method="post" action="/paiement/<%= type %><%= item.extra %>" data-loading>
+        <label for="wave_phone">Numéro Wave utilisé pour l'envoi</label>
+        <input id="wave_phone" name="wave_phone" required placeholder="Ex : 07 09 45 67 89" value="<%= user.phone || '' %>">
+        <button class="btn btn-block" style="margin-top:18px; background:#FFD400; color:#1a2a3a; font-weight:800" type="submit">
+          J'ai envoyé le paiement
+        </button>
+      </form>
+    <% } else { %>
+      <form method="post" action="/paiement/<%= type %><%= item.extra %>" data-loading>
+        <label for="wave_phone">Votre numéro Wave</label>
+        <input id="wave_phone" name="wave_phone" required placeholder="Ex : 07 09 45 67 89" value="<%= user.phone || '' %>">
+        <button class="btn btn-block" style="margin-top:18px; background:#FFD400; color:#1a2a3a; font-weight:800" type="submit">
+          Confirmer le paiement
+        </button>
+      </form>
+      <p style="font-size:11.5px; opacity:.75; margin-top:14px">
+        En production, ce formulaire sera remplacé par la page de paiement Wave officielle
+        (via Wave Business ou l'agrégateur CinetPay / PayDunya).
+      </p>
+    <% } %>
+  </div>
+  <p style="text-align:center; margin-top:16px"><a href="javascript:history.back()" class="muted">← Annuler et revenir</a></p>
+</div>
+
+<%- include('partials/footer') %>

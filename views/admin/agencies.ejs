@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>🏢 Gestion des agences</h2>
+    </div></div>
+    <%- include('tabs') %>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Agence</th><th>Localisation</th><th>Annonces</th><th>Note</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+          <% agencies.forEach(a => { %>
+            <tr>
+              <td>
+                <a href="/agences/<%= a.user_id %>"><b><%= a.agency_name %></b></a><br>
+                <span class="muted" style="font-size:12px"><%= a.email %> · inscrite <%= H.timeAgo(a.created_at) %></span>
+              </td>
+              <td><%= a.commune ? a.commune + ', ' : '' %><%= a.ville %></td>
+              <td><b><%= a.n_listings %></b></td>
+              <td>
+                <% if (a.rating) { %><span class="stars">★</span> <%= H.noteFr(a.rating) %> <span class="muted" style="font-size:12px">(<%= a.n_reviews %>)</span>
+                <% } else { %><span class="muted">—</span><% } %>
+              </td>
+              <td>
+                <% if (a.verified) { %><span class="badge badge-verified">✔ Vérifiée</span><% } %>
+                <% if (H.isPremium(a)) { %><span class="badge badge-premium">★ <%= H.premiumDaysLeft(a) %> j</span>
+                <% } else { %><span class="badge badge-status">Gratuit</span><% } %>
+              </td>
+              <td>
+                <div class="actions">
+                  <form method="post" action="/admin/agences/<%= a.user_id %>/verifier">
+                    <button class="btn btn-sm <%= a.verified ? 'btn-ghost' : 'btn-outline' %>" type="submit">
+                      <%= a.verified ? 'Retirer ✔' : 'Vérifier ✔' %>
+                    </button>
+                  </form>
+                  <form method="post" action="/admin/agences/<%= a.user_id %>/premium">
+                    <button class="btn btn-sm <%= H.isPremium(a) ? 'btn-ghost' : 'btn-primary' %>" type="submit">
+                      <%= H.isPremium(a) ? 'Retirer ★' : 'Offrir ★ 30 j' %>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <p class="form-note" style="margin-top:14px">
+      💡 <b>Vérifier ✔</b> = vous avez contrôlé l'existence et le sérieux de l'agence (visite, documents). ·
+      <b>Offrir ★</b> = 30 jours de Premium gratuits — idéal pour convaincre les premières agences partenaires au lancement.
+    </p>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

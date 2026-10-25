@@ -1,0 +1,52 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>⭐ Modération des avis</h2>
+    </div></div>
+    <%- include('tabs') %>
+    <p class="muted" style="font-size:13.5px; margin-bottom:18px">
+      Les agences ne peuvent pas supprimer leurs mauvais avis — <b>vous seul</b> pouvez masquer un avis abusif.
+      Les notes basses remontent en premier pour faciliter la surveillance.
+    </p>
+
+    <% if (reviews.length) { %>
+      <div class="grid" style="gap:14px">
+        <% reviews.forEach(r => { %>
+          <div class="card <%= r.status === 'masque' ? 'row-masked' : '' %>" style="padding:18px">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap">
+              <div class="review-head">
+                <span class="avatar avatar-sm" style="background:<%= H.avatarColor(r.author) %>"><%= r.author.charAt(0) %></span>
+                <div>
+                  <b><%= H.maskedName(r.author) %></b>
+                  <span class="stars"><%= H.stars(r.rating) %></span>
+                  <% if (r.hired === 1) { %><span class="badge badge-pourvue">✅ embauche</span><% } %>
+                  <% if (r.status === 'masque') { %><span class="badge badge-masque">🚫 Masqué</span><% } %>
+                  <br>
+                  <span class="muted" style="font-size:12.5px">
+                    <%= H.fmtDate(r.created_at) %> · <a href="/annonce/<%= r.lid %>"><i><%= r.title %></i></a> ·
+                    agence <a href="/agences/<%= r.agency_id %>"><%= r.agency_name %></a>
+                  </span>
+                </div>
+              </div>
+              <form method="post" action="/admin/avis/<%= r.id %>/moderer">
+                <button class="btn btn-sm <%= r.status === 'publie' ? 'btn-ghost' : 'btn-outline' %>" type="submit">
+                  <%= r.status === 'publie' ? '🚫 Masquer' : '♻ Republier' %>
+                </button>
+              </form>
+            </div>
+            <% if (r.comment) { %><p style="margin-top:10px; font-size:14px"><%= r.comment %></p><% } %>
+            <% if (r.agency_reply) { %><div class="reply-box"><b>↩ Réponse de l'agence</b><%= r.agency_reply %></div><% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty"><div class="ico">⭐</div><p>Aucun avis pour l'instant.</p></div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

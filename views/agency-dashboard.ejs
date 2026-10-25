@@ -1,0 +1,255 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Espace agence</span>
+        <h2><%= agency.agency_name %></h2>
+        <p class="muted">📍 <%= agency.commune ? agency.commune + ', ' : '' %><%= agency.ville %>
+          <% if (agency.verified) { %> · <span class="badge badge-verified">✔ Vérifiée</span><% } %>
+          <% if (isPremium) { %> · <span class="badge badge-premium">★ Premium — <%= H.premiumDaysLeft(agency) %> j restants</span><% } %>
+        </p>
+      </div>
+      <a href="/agence/annonces/nouvelle" class="btn btn-primary">+ Publier une annonce</a>
+    </div>
+
+    <% if (!isPremium) { %>
+      <div class="premium-banner">
+        <div>
+          <h3 style="margin-bottom:4px">★ Passez en Premium — <%= H.fcfa(H.PRICES.subscription.amount) %>/mois</h3>
+          <p style="font-size:13.5px; opacity:.85">Annonces illimitées, priorité dans les recherches, statistiques avancées. Offre gratuite actuelle : 3 annonces max.</p>
+        </div>
+        <a href="/agence/abonnement" class="btn btn-primary">Découvrir Premium</a>
+      </div>
+    <% } %>
+
+    <!-- Statistiques -->
+    <div class="stat-cards">
+      <div class="card stat-card"><span class="n" style="color:var(--orange)"><%= stats.actives %></span><span class="l">Annonces actives</span></div>
+      <div class="card stat-card"><span class="n"><%= stats.views %></span><span class="l">Vues cumulées</span></div>
+      <div class="card stat-card"><span class="n" style="color:var(--green)"><%= stats.leads %></span><span class="l">Contacts débloqués (clients potentiels)</span></div>
+      <div class="card stat-card"><span class="n">⚡ <%= stats.boosts %></span><span class="l">Boosts en cours</span></div>
+      <div class="card stat-card">
+        <span class="n" style="color:var(--orange)"><% if (stats.ratingAvg) { %>★ <%= H.noteFr(stats.ratingAvg) %><% } else { %>—<% } %></span>
+        <span class="l">Note moyenne (<%= stats.ratingCount %> avis vérifié<%= stats.ratingCount > 1 ? 's' : '' %>)</span>
+      </div>
+      <div class="card stat-card">
+        <span class="n" style="color:var(--green)"><%= stats.conv30 %>%</span>
+        <span class="l">Taux de contact — 30 j<span class="kpi-sub"><%= stats.leads30 %> contacts / <%= stats.views30 %> vues</span></span>
+      </div>
+    </div>
+
+    <!-- ================= PERFORMANCES 30 JOURS ================= -->
+    <div class="detail-grid" style="margin-bottom:26px">
+      <div class="panel">
+        <h3 style="margin-bottom:4px">👁 Vues de vos annonces — 30 derniers jours</h3>
+        <p class="muted" style="font-size:12.5px; margin-bottom:6px">Survolez les barres pour le détail jour par jour</p>
+        <div class="chart">
+          <% const maxV = Math.max(1, ...viewsDaily.map(d => d.n)); %>
+          <% viewsDaily.forEach(d => { %>
+            <div class="bar-wrap" title="<%= d.label %> : <%= d.n %> vue<%= d.n > 1 ? 's' : '' %>">
+              <div class="bar" style="height:<%= Math.max(2, Math.round(d.n / maxV * 100)) %>%"></div>
+            </div>
+          <% }) %>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:6px">
+          <span><%= viewsDaily[0].label %></span><span><%= viewsDaily[29].label %></span>
+        </div>
+      </div>
+      <div class="panel" style="background:linear-gradient(120deg,#fff,#fff8ef)">
+        <h3 style="margin-bottom:10px">🏆 Vos annonces les plus vues <span class="muted" style="font-weight:400">(30 j)</span></h3>
+        <% if (top30.length) { %>
+          <% top30.forEach(t => { %>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px dashed #efe4d6; font-size:14px">
+              <a href="/annonce/<%= t.id %>"><b><%= t.title %></b></a>
+              <span class="badge badge-boost">👁 <%= t.v30 %></span>
+            </div>
+          <% }) %>
+          <p class="form-note" style="margin-top:10px">💡 Boostez vos meilleures annonces un vendredi : pics de recherche le week-end.</p>
+        <% } else { %>
+          <p class="muted" style="font-size:13.5px">Pas encore de vues sur vos annonces. Boostez-les pour gagner en visibilité ! ⚡</p>
+        <% } %>
+      </div>
+    </div>
+
+    <% if (lastNotifs && lastNotifs.length) { %>
+      <div class="card" style="padding:18px 20px; margin-bottom:26px">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+          <b>🔔 Dernières notifications</b>
+          <a href="/agence/notifications" class="muted" style="font-size:13px">Tout voir →</a>
+        </div>
+        <% lastNotifs.forEach(n => { %>
+          <form method="post" action="/agence/notifications/<%= n.id %>/lu" class="notif-line <%= n.read_at ? '' : 'unread' %>">
+            <button type="submit">
+              <span><%= KIND_ICONS[n.kind] || '🔔' %> <b><%= n.title %></b><br>
+              <span class="muted" style="font-size:12.5px"><%= n.body.slice(0, 110) %>…</span></span>
+              <span class="muted" style="font-size:11.5px; white-space:nowrap"><%= H.timeAgo(n.created_at) %></span>
+            </button>
+          </form>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (isPremium) { %>
+      <div class="card" style="padding:20px; margin-bottom:26px; background:linear-gradient(120deg,#fff,#fff8ef)">
+        <h4>📈 Prévisions (fonctionnalité Premium)</h4>
+        <p class="muted" style="font-size:14px; margin-top:6px">
+          Vous avez généré <b><%= stats.leads30 %> contact<%= stats.leads30 > 1 ? 's' : '' %></b> sur les 30 derniers jours.
+          À ce rythme, prévision pour le mois prochain : <b>≈ <%= stats.leads30 %> – <%= Math.round(stats.leads30 * 1.4) %> mises en relation</b>.
+          Nos recommandations : booster vos annonces les week-ends (pics de recherche) et renouveler les profils anciens.
+        </p>
+      </div>
+    <% } %>
+
+    <!-- Annonces -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:12px; flex-wrap:wrap">
+      <h3 style="margin:0">Mes annonces (<%= listings.length %>)</h3>
+      <a href="/agence/export/annonces.csv" class="btn btn-sm btn-outline">⬇ Export CSV</a>
+    </div>
+    <% if (listings.length) { %>
+
+      <!-- Barre d'actions groupées : cochez des lignes puis cliquez une action -->
+      <form id="bulk" class="bulk-bar">
+        <span class="muted" style="font-size:12.5px">☝ Cochez des annonces, puis :</span>
+        <div class="actions">
+          <button class="btn btn-sm btn-primary" formmethod="post" formaction="/paiement/boost?pack=pop">⚡ Booster × Popularité (<%= H.fcfa(H.PRICES.boost.pop.amount) %>/annonce)</button>
+          <button class="btn btn-sm btn-primary" formmethod="post" formaction="/paiement/boost?pack=vip">👑 Booster × VIP (<%= H.fcfa(H.PRICES.boost.vip.amount) %>/annonce)</button>
+          <button class="btn btn-sm btn-ghost" formmethod="post" formaction="/agence/annonces/groupe?action=active">▶️ Publier</button>
+          <button class="btn btn-sm btn-ghost" formmethod="post" formaction="/agence/annonces/groupe?action=pause">⏸ Pause</button>
+          <button class="btn btn-sm btn-ghost" formmethod="post" formaction="/agence/annonces/groupe?action=pourvue">✅ Pourvue</button>
+        </div>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th style="width:30px"></th><th>Annonce</th><th>Catégorie</th><th>Statut</th><th>👁 Vues</th><th>🔓 Contacts</th><th>⚡ Boost</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <% listings.forEach(l => { %>
+              <tr>
+                <td><input type="checkbox" form="bulk" name="ids" value="<%= l.id %>" style="width:auto; margin:0" aria-label="Sélectionner <%= l.title %>"></td>
+                <td>
+                  <div style="display:flex; gap:10px; align-items:center">
+                    <% if (l.photo) { %><img class="thumb-sm" src="<%= l.photo %>" alt=""><% } %>
+                    <div>
+                      <a href="/annonce/<%= l.id %>"><b><%= l.title %></b></a><br>
+                      <span class="muted" style="font-size:12px"><%= l.worker_name %> · <%= l.commune || l.ville %> · <%= H.timeAgo(l.created_at) %></span>
+                    </div>
+                  </div>
+                </td>
+                <td><%= l.cat_icon %> <%= l.cat_name %></td>
+                <td>
+                  <% if (l.status === 'active') { %><span class="badge badge-status">Active</span>
+                  <% } else if (l.status === 'pause') { %><span class="badge badge-pause">En pause</span>
+                  <% } else { %><span class="badge badge-pourvue">Pourvue</span><% } %>
+                </td>
+                <td><%= l.views %></td>
+                <td><b style="color:var(--green)"><%= l.unlocks %></b></td>
+                <td>
+                  <% if (H.isBoosted(l)) { %>
+                    <span class="badge badge-boost">⚡ jusqu'au <%= H.fmtDate(l.boosted_until) %></span>
+                  <% } else { %>
+                    <a class="btn btn-sm btn-ghost" href="#" onclick="document.getElementById('boost-<%= l.id %>').style.display='flex'; return false">Booster</a>
+                  <% } %>
+                </td>
+                <td>
+                  <div class="actions">
+                    <a class="btn btn-sm btn-outline" href="/agence/annonces/<%= l.id %>/modifier">✏️ Modifier</a>
+                    <form method="post" action="/agence/annonces/<%= l.id %>/dupliquer" title="Dupliquer cette annonce">
+                      <button class="btn btn-sm btn-ghost" type="submit" title="Dupliquer">⧉</button>
+                    </form>
+                    <% if (l.status === 'active') { %>
+                      <form method="post" action="/agence/annonces/<%= l.id %>/statut"><input type="hidden" name="statut" value="pause"><button class="btn btn-sm btn-ghost" title="Mettre en pause">⏸</button></form>
+                      <form method="post" action="/agence/annonces/<%= l.id %>/statut"><input type="hidden" name="statut" value="pourvue"><button class="btn btn-sm btn-ghost" title="Marquer pourvue">✅</button></form>
+                    <% } else { %>
+                      <form method="post" action="/agence/annonces/<%= l.id %>/statut"><input type="hidden" name="statut" value="active"><button class="btn btn-sm btn-ghost" title="Réactiver">▶️</button></form>
+                    <% } %>
+                    <form method="post" action="/agence/annonces/<%= l.id %>/retirer" data-confirm="Retirer définitivement cette annonce ?"><button class="btn btn-sm btn-ghost" title="Retirer">🗑</button></form>
+                  </div>
+                </td>
+              </tr>
+              <tr id="boost-<%= l.id %>" style="display:none; background:#fffaf2">
+                <td colspan="7">
+                  <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; padding:6px 0">
+                    <b style="font-size:13px">Choisir un boost :</b>
+                    <a class="btn btn-sm btn-primary" href="/paiement/boost?annonce=<%= l.id %>&pack=pop">⚡ Popularité — <%= H.fcfa(H.PRICES.boost.pop.amount) %> / 5 j</a>
+                    <a class="btn btn-sm btn-primary" href="/paiement/boost?annonce=<%= l.id %>&pack=vip">👑 VIP — <%= H.fcfa(H.PRICES.boost.vip.amount) %> / 14 j</a>
+                    <button class="btn btn-sm btn-ghost" onclick="document.getElementById('boost-<%= l.id %>').style.display='none'">Fermer</button>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %>
+      <div class="card empty">
+        <div class="ico">📢</div>
+        <h3>Publiez votre première annonce</h3>
+        <p>Présentez un profil de votre catalogue en 2 minutes et recevez vos premiers contacts.</p>
+        <a href="/agence/annonces/nouvelle" class="btn btn-primary" style="margin-top:14px">+ Créer une annonce</a>
+      </div>
+    <% } %>
+
+    <!-- ================= AVIS REÇUS ================= -->
+    <h3 style="margin:38px 0 6px" id="avis">Avis reçus (<%= reviews.length %>)</h3>
+    <p class="muted" style="font-size:13px; margin-bottom:16px">Répondez aux avis pour renforcer la confiance. Votre note apparaît sur toutes vos annonces et sur votre <a href="/agences/<%= user.id %>">page publique</a>.</p>
+    <% if (reviews.length) { %>
+      <div class="grid" style="gap:14px">
+        <% reviews.forEach(r => { %>
+          <div class="card" style="padding:18px">
+            <div class="review-head">
+              <span class="avatar avatar-sm" style="background:<%= H.avatarColor(r.author) %>"><%= r.author.charAt(0) %></span>
+              <div>
+                <b><%= H.maskedName(r.author) %></b>
+                <span class="stars"><%= H.stars(r.rating) %></span>
+                <% if (r.hired === 1) { %><span class="badge badge-pourvue">✅ embauche confirmée</span><% } %>
+                <br><span class="muted" style="font-size:12.5px"><%= H.fmtDate(r.created_at) %> · annonce <a href="/annonce/<%= r.lid %>"><i><%= r.title %></i></a></span>
+              </div>
+            </div>
+            <% if (r.comment) { %><p style="margin-top:10px; font-size:14px"><%= r.comment %></p><% } %>
+            <% if (r.agency_reply) { %><div class="reply-box"><b>Votre réponse</b><%= r.agency_reply %></div><% } %>
+            <form method="post" action="/agence/avis/<%= r.id %>/repondre" style="margin-top:12px">
+              <textarea name="reply" maxlength="500" style="min-height:64px; font-size:13.5px" placeholder="<%= r.agency_reply ? 'Modifier votre réponse…' : 'Répondre publiquement à cet avis… (merci, précisions, amélioration)' %>"><%= r.agency_reply || '' %></textarea>
+              <button class="btn btn-sm <%= r.agency_reply ? 'btn-ghost' : 'btn-outline' %>" style="margin-top:8px" type="submit">
+                <%= r.agency_reply ? '✏️ Modifier la réponse' : '↩ Répondre publiquement' %>
+              </button>
+            </form>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty" style="padding:30px">
+        <p class="muted">Aucun avis pour l'instant. Après chaque embauche réussie, invitez la famille à publier son avis vérifié — c'est votre meilleure publicité. ⭐</p>
+      </div>
+    <% } %>
+
+    <% if (payments.length) { %>
+      <h3 style="margin:38px 0 14px">Mes derniers paiements</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Opération</th><th>Montant</th><th>Statut</th></tr></thead>
+          <tbody>
+            <% payments.forEach(p => { %>
+              <tr>
+                <td><%= H.fmtDate(p.created_at) %></td>
+                <td><%= p.label %></td>
+                <td><b><%= H.fcfa(p.amount) %></b></td>
+                <td>
+                  <% if (p.status === 'en_attente') { %><span class="badge badge-pending">⏳ validation</span>
+                  <% } else if (p.status === 'success') { %><span class="badge badge-verified">✔ validé</span>
+                  <% } else { %><span class="badge badge-masque">🚫 rejeté</span><% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

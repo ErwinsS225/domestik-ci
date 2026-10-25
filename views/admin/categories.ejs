@@ -1,0 +1,66 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>🗂 Catégories de personnel</h2>
+    </div></div>
+    <%- include('tabs') %>
+
+    <!-- Formulaire ajout / modification -->
+    <div class="panel" style="margin-bottom:24px">
+      <h3 style="margin-bottom:10px"><%= editing ? `✏️ Modifier « ${editing.name} »` : '➕ Nouvelle catégorie' %></h3>
+      <form method="post" action="<%= editing ? `/admin/categories/${editing.id}/modifier` : '/admin/categories' %>">
+        <div class="form-row">
+          <div>
+            <label for="name">Nom *</label>
+            <input id="name" name="name" required maxlength="60" value="<%= editing ? editing.name : '' %>" placeholder="Ex : Sécurité / Gardiennage">
+          </div>
+          <div>
+            <label for="icon">Emoji</label>
+            <input id="icon" name="icon" maxlength="8" value="<%= editing ? editing.icon : '' %>" placeholder="🛡">
+          </div>
+        </div>
+        <label for="description">Description courante</label>
+        <input id="description" name="description" maxlength="200" value="<%= editing ? (editing.description || '') : '' %>" placeholder="Ce que couvre cette catégorie…">
+        <div style="display:flex; gap:10px; margin-top:16px">
+          <button class="btn btn-primary btn-sm" type="submit"><%= editing ? '💾 Enregistrer' : '➕ Ajouter' %></button>
+          <% if (editing) { %><a href="/admin/categories" class="btn btn-sm btn-ghost">Annuler</a><% } %>
+        </div>
+      </form>
+    </div>
+
+    <!-- Liste -->
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Catégorie</th><th>Annonces</th><th>Description</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody>
+          <% categories.forEach(c => { %>
+            <tr class="<%= c.active ? '' : 'row-masked' %>">
+              <td><b><%= c.icon %> <%= c.name %></b><br><span class="muted" style="font-size:12px">#<%= c.id %></span></td>
+              <td><b><%= c.n %></b></td>
+              <td class="muted" style="font-size:12.5px; max-width:340px"><%= c.description %></td>
+              <td>
+                <% if (c.active) { %><span class="badge badge-verified">✔ Visible</span>
+                <% } else { %><span class="badge badge-masque">🚫 Masquée</span><% } %>
+              </td>
+              <td>
+                <div class="actions">
+                  <a class="btn btn-sm btn-outline" href="/admin/categories?edit=<%= c.id %>">✏️</a>
+                  <form method="post" action="/admin/categories/<%= c.id %>/basculer">
+                    <button class="btn btn-sm btn-ghost" type="submit"><%= c.active ? '🚫 Masquer' : '✔ Afficher' %></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <p class="form-note" style="margin-top:12px">Masquer une catégorie retire ses annonces de la recherche et de l'accueil (elles restent en base et réapparaissent lorsque vous la réactivez).</p>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

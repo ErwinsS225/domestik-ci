@@ -1,0 +1,72 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>📲 File WhatsApp</h2>
+    </div></div>
+    <%- include('tabs') %>
+
+    <div class="panel" style="margin-bottom:24px; background:#f0fdf6; border-color:#b9e8cf">
+      <b>Comment ça marche</b>
+      <p class="muted" style="font-size:13.5px; margin-top:4px">
+        Chaque alerte importante (nouveau client, avis, boost…) arrive ici. Cliquez <b>« 📲 Envoyer »</b> :
+        WhatsApp s'ouvre avec le message pré-rempli → appuyez sur envoyer depuis le numéro professionnel de la plateforme,
+        puis <b>« Marquer envoyé »</b>. Zéro coût.<br>
+        <b>En production</b> : branchez l'API WhatsApp Cloud de Meta (<code>META_WA_TOKEN</code> + <code>META_WA_PHONE_ID</code>)
+        et ces messages partiront automatiquement, sans intervention.
+      </p>
+    </div>
+
+    <h3 style="margin-bottom:14px">⏳ À envoyer (<%= queued.length %>)</h3>
+    <% if (queued.length) { %>
+      <div class="grid" style="gap:12px; margin-bottom:36px">
+        <% queued.forEach(n => { %>
+          <div class="card" style="padding:16px 18px">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap">
+              <div style="flex:1; min-width:260px">
+                <b><%= KIND_ICONS[n.kind] || '🔔' %> <%= n.title %></b>
+                <span class="muted" style="font-size:12.5px"> → <%= n.dest_name %> · <%= n.dest_phone || 'pas de numéro' %> · <%= H.timeAgo(n.created_at) %></span>
+                <p class="muted" style="font-size:13.5px; margin-top:6px"><%= n.body %></p>
+              </div>
+              <div class="actions">
+                <% if (n.dest_phone) { %>
+                  <a class="btn btn-sm btn-green" target="_blank" rel="noopener"
+                     href="<%= waManualLink(n.dest_phone, n.title, n.body, n.link) %>">📲 Envoyer</a>
+                <% } %>
+                <form method="post" action="/admin/whatsapp/<%= n.id %>/envoye">
+                  <button class="btn btn-sm btn-ghost" type="submit">✔ Envoyé</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty" style="margin-bottom:36px"><div class="ico">✅</div><p>File vide — tout a été envoyé.</p></div>
+    <% } %>
+
+    <% if (sent.length) { %>
+      <h3 style="margin-bottom:14px">📤 Envoyées récemment</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Destinataire</th><th>Message</th><th>Statut</th></tr></thead>
+          <tbody>
+            <% sent.forEach(n => { %>
+              <tr>
+                <td style="white-space:nowrap"><%= H.fmtDate(n.created_at) %></td>
+                <td><%= n.dest_name %></td>
+                <td style="font-size:13px"><%= KIND_ICONS[n.kind] || '🔔' %> <%= n.title %></td>
+                <td><span class="badge badge-verified">📲 envoyé</span></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

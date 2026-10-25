@@ -1,0 +1,193 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="container<%= SITE.hero_image ? ' hero-with-img' : '' %>">
+    <div class="hero-txt">
+    <h1><%- SITE.hero_title %></h1>
+    <p class="lead"><%= SITE.hero_lead %>
+</p>
+    <div class="hero-actions">
+      <a href="/recherche" class="btn btn-primary">🔍 Je cherche du personnel</a>
+      <a href="/inscription" class="btn btn-outline">🏢 Je suis une agence</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b><%= stats.listings %></b><span>Profils disponibles</span></div>
+      <div class="stat"><b><%= stats.agencies %></b><span>Agences partenaires</span></div>
+      <div class="stat"><b><%= stats.unlocks %></b><span>Mises en relation</span></div>
+    </div>
+    </div>
+    <% if (SITE.hero_image) { %><img class="hero-img" src="<%= SITE.hero_image %>" alt="Illustration Domestik CI" loading="eager"><% } %>
+  </div>
+</section>
+
+<!-- ================= CATEGORIES ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><%= SITE.cats_eyebrow %></span>
+        <h2><%= SITE.cats_title %></h2>
+      </div>
+      <a href="/recherche" class="btn btn-ghost btn-sm">Tout voir →</a>
+    </div>
+    <div class="grid grid-4">
+      <% categories.forEach(c => { %>
+        <a class="card cat-card" href="/recherche?categorie=<%= c.id %>">
+          <span class="ico"><%= c.icon %></span>
+          <b><%= c.name %></b>
+          <small><%= c.n %> profil<%= c.n > 1 ? 's' : '' %></small>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ANNONCES EN VEDETTE ================= -->
+<% if (featured.length) { %>
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">⚡ En vedette</span>
+        <h2><%= SITE.featured_title %></h2>
+      </div>
+    </div>
+    <div class="grid grid-3">
+      <% featured.forEach(l => { %><%- include('partials/listing-card', { l, H }) %><% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- ================= DERNIÈRES ANNONCES ================= -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><%= SITE.latest_eyebrow %></span>
+        <h2><%= SITE.latest_title %></h2>
+      </div>
+      <a href="/recherche" class="btn btn-ghost btn-sm">Voir toutes les annonces →</a>
+    </div>
+    <div class="grid grid-3">
+      <% latest.forEach(l => { %><%- include('partials/listing-card', { l, H }) %><% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONFIANCE : AVIS VÉRIFIÉS ================= -->
+<% if (topReviews.length) { %>
+<section class="section" id="confiance">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">🛡 La confiance d'abord</span>
+        <h2><%= SITE.reviews_title %></h2>
+      </div>
+      <span class="muted" style="font-size:13px; max-width:42ch">Avis 100 % vérifiés : seules les familles ayant réellement débloqué le contact d'une agence peuvent en parler.</span>
+    </div>
+    <div class="grid grid-3">
+      <% topReviews.forEach(t => { %>
+        <div class="card step">
+          <div style="display:flex; justify-content:space-between; align-items:center">
+            <span class="stars" style="font-size:17px"><%= H.stars(t.rating) %></span>
+            <% if (t.hired === 1) { %><span class="badge badge-pourvue">✅ embauche confirmée</span><% } %>
+          </div>
+          <p style="margin:12px 0; font-size:14.5px; line-height:1.65">“<%= t.comment %>”</p>
+          <span class="muted" style="font-size:12.5px">— <%= H.maskedName(t.author) %> · à propos de <a href="/annonce/<%= t.listing_id %>"><i><%= t.title %></i></a></span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- ================= COMMENT ÇA MARCHE ================= -->
+<section class="section" id="comment">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow"><%= SITE.how_eyebrow %></span>
+      <h2><%= SITE.how_title %></h2>
+    </div></div>
+    <div class="grid grid-3">
+      <div class="card step">
+        <div class="num">1</div>
+        <h3><%= SITE.step1_title %></h3>
+        <p><%= SITE.step1_text %></p>
+      </div>
+      <div class="card step">
+        <div class="num">2</div>
+        <h3><%= C.withPrice(SITE.step2_title, H.fcfa(H.PRICES.unlock)) %></h3>
+        <p><%= SITE.step2_text %></p>
+      </div>
+      <div class="card step">
+        <div class="num">3</div>
+        <h3><%= SITE.step3_title %></h3>
+        <p>Appelez ou écrivez sur WhatsApp à l'agence : elle organise l'entretien, vérifie les références et sécurise le recrutement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TARIFS ================= -->
+<section class="section" id="tarifs">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow"><%= SITE.pricing_eyebrow %></span>
+      <h2><%= SITE.pricing_title %></h2>
+    </div></div>
+    <div class="grid grid-3">
+      <div class="card price-card">
+        <h3>👤 Chercheur de personnel</h3>
+        <span class="amount"><%= H.fcfa(H.PRICES.unlock) %></span>
+        <span class="muted">par contact débloqué</span>
+        <ul>
+          <li>Recherche et navigation gratuites</li>
+          <li>Paiement Wave sécurisé</li>
+          <li>Numéro + WhatsApp de l'agence</li>
+          <li>Contact conservé dans votre espace</li>
+        </ul>
+        <a href="/recherche" class="btn btn-primary btn-block">Commencer ma recherche</a>
+      </div>
+      <div class="card price-card featured">
+        <span class="tag">Recommandé</span>
+        <h3>🏢 Agence Premium</h3>
+        <span class="amount"><%= H.fcfa(H.PRICES.subscription.amount) %></span>
+        <span class="muted">tous les <%= H.PRICES.subscription.days %> jours</span>
+        <ul>
+          <li>Annonces illimitées</li>
+          <li>Priorité dans les résultats de recherche</li>
+          <li>Statistiques avancées & prévisions</li>
+          <li>Badge ★ Premium sur vos annonces</li>
+        </ul>
+        <a href="/inscription" class="btn btn-primary btn-block">Devenir partenaire</a>
+      </div>
+      <div class="card price-card">
+        <h3>⚡ Boosts d'annonce</h3>
+        <span class="amount"><%= H.fcfa(H.PRICES.boost.pop.amount) %> – <%= H.fcfa(H.PRICES.boost.vip.amount) %></span>
+        <span class="muted"><%= H.PRICES.boost.pop.days %> ou <%= H.PRICES.boost.vip.days %> jours de visibilité</span>
+        <ul>
+          <li>Mise en avant sur la page d'accueil</li>
+          <li>Haut des résultats de recherche</li>
+          <li>Badge ⚡ visible par tous</li>
+          <li>Activation immédiate via Wave</li>
+        </ul>
+        <a href="/inscription" class="btn btn-outline btn-block">Booster une annonce</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA AGENCE ================= -->
+<section class="section">
+  <div class="container">
+    <div class="cta-band">
+      <h2>Vous êtes une agence de placement ? Digitalisez votre activité dès aujourd'hui.</h2>
+      <a href="/inscription" class="btn btn-primary">Créer mon compte agence gratuitement</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

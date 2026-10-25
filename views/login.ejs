@@ -1,0 +1,23 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<div class="page-narrow" style="max-width:480px">
+  <div class="panel">
+    <h2>Connexion</h2>
+    <p class="muted" style="margin:6px 0 14px">Ravi de vous revoir 👋</p>
+    <form method="post" action="/connexion">
+      <label for="email">Email</label>
+      <input id="email" type="email" name="email" required autocomplete="email">
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password" name="password" required autocomplete="current-password">
+      <button class="btn btn-primary btn-block" style="margin-top:22px" type="submit">Se connecter</button>
+    </form>
+    <p class="form-note" style="text-align:center; margin-top:14px">Pas encore de compte ? <a href="/inscription"><b>Créer un compte</b></a></p>
+    <div class="card" style="margin-top:18px; padding:14px; background:#FBF7F1; font-size:12.5px" class="muted">
+      <b>Comptes de démonstration</b> (mot de passe : <code>demo1234</code>)<br>
+      👤 Chercheur : <code>client@demo.ci</code> · 🏢 Agence : <code>agence@demo.ci</code>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

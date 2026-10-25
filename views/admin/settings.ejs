@@ -1,0 +1,82 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container" style="max-width:820px">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>⚙️ Réglages de la plateforme</h2>
+    </div></div>
+    <%- include('tabs') %>
+
+    <form method="post" action="/admin/reglages">
+      <!-- ============ PAIEMENT ============ -->
+      <div class="panel" style="margin-bottom:22px; border-color:#F8D8B3">
+        <h3 style="margin-bottom:6px">💳 Mode de réception des paiements</h3>
+        <label style="display:flex; gap:12px; align-items:flex-start; font-weight:400; cursor:pointer; margin-top:14px">
+          <input type="checkbox" name="manual_review" style="width:auto; margin-top:4px" <%= H.PRICES.manual_review ? 'checked' : '' %>>
+          <span>
+            <b>Validation manuelle des paiements (recommandé avant l'API Wave)</b><br>
+            <span class="muted" style="font-size:13px">
+              Coché : le client envoie l'argent au numéro Wave de la plateforme ; le paiement reste « en attente »
+              jusqu'à votre validation dans <b>Paiements</b>. Décoché : confirmation automatique immédiate (mode démo).
+            </span>
+          </span>
+        </label>
+        <label for="platform_phone">Numéro Wave de la plateforme (où les clients envoient l'argent)</label>
+        <input id="platform_phone" name="platform_phone" value="<%= H.PRICES.platform_phone %>" placeholder="+225 07 00 00 00 00">
+      </div>
+
+      <!-- ============ TARIFS ============ -->
+      <div class="panel" style="margin-bottom:22px">
+        <h3 style="margin-bottom:4px">💰 Tarifs</h3>
+        <p class="muted" style="font-size:13px">Modification appliquée immédiatement sur tout le site.</p>
+        <div class="form-row">
+          <div>
+            <label for="price_unlock">Déblocage de contact (FCFA)</label>
+            <input id="price_unlock" type="number" name="price_unlock" min="100" step="100" value="<%= H.PRICES.unlock %>">
+          </div>
+          <div>
+            <label for="sub_amount">Abonnement Premium (FCFA / période)</label>
+            <input id="sub_amount" type="number" name="sub_amount" min="1000" step="500" value="<%= H.PRICES.subscription.amount %>">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label for="sub_days">Durée de l'abonnement (jours)</label>
+            <input id="sub_days" type="number" name="sub_days" min="7" value="<%= H.PRICES.subscription.days %>">
+          </div>
+          <div></div>
+        </div>
+
+        <h4 style="margin:18px 0 2px">⚡ Pack Popularité</h4>
+        <div class="form-row">
+          <div>
+            <label for="boost_pop_amount">Prix (FCFA)</label>
+            <input id="boost_pop_amount" type="number" name="boost_pop_amount" min="500" step="500" value="<%= H.PRICES.boost.pop.amount %>">
+          </div>
+          <div>
+            <label for="boost_pop_days">Durée (jours)</label>
+            <input id="boost_pop_days" type="number" name="boost_pop_days" min="1" value="<%= H.PRICES.boost.pop.days %>">
+          </div>
+        </div>
+
+        <h4 style="margin:18px 0 2px">👑 Pack VIP</h4>
+        <div class="form-row">
+          <div>
+            <label for="boost_vip_amount">Prix (FCFA)</label>
+            <input id="boost_vip_amount" type="number" name="boost_vip_amount" min="500" step="500" value="<%= H.PRICES.boost.vip.amount %>">
+          </div>
+          <div>
+            <label for="boost_vip_days">Durée (jours)</label>
+            <input id="boost_vip_days" type="number" name="boost_vip_days" min="1" value="<%= H.PRICES.boost.vip.days %>">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" type="submit">💾 Enregistrer les réglages</button>
+    </form>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

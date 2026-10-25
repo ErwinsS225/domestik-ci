@@ -1,0 +1,75 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<div class="page-narrow">
+  <div class="panel">
+    <h2>Créer un compte</h2>
+    <p class="muted" style="margin:6px 0 8px">Choisissez votre profil pour commencer.</p>
+
+    <form method="post" action="/inscription">
+      <div class="role-cards">
+        <label class="role-card">
+          <input type="radio" name="role" value="user" <%= !old.role || old.role === 'user' ? 'checked' : '' %>>
+          <span class="ico">👤</span>
+          <b>Je cherche du personnel</b>
+          <small>Particulier ou entreprise à la recherche d'un employé domestique.</small>
+        </label>
+        <label class="role-card">
+          <input type="radio" name="role" value="agency" <%= old.role === 'agency' ? 'checked' : '' %>>
+          <span class="ico">🏢</span>
+          <b>Je suis une agence</b>
+          <small>Agence de placement : publiez vos profils et gérez votre vitrine.</small>
+        </label>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="name">Votre nom complet *</label>
+          <input id="name" name="name" value="<%= old.name || '' %>" required>
+        </div>
+        <div>
+          <label for="phone">Téléphone (Wave de préférence)</label>
+          <input id="phone" name="phone" value="<%= old.phone || '' %>" placeholder="+225 07 00 00 00 00">
+        </div>
+      </div>
+      <label for="email">Email *</label>
+      <input id="email" type="email" name="email" value="<%= old.email || '' %>" required>
+      <div class="form-row">
+        <div>
+          <label for="password">Mot de passe *</label>
+          <input id="password" type="password" name="password" required minlength="6">
+        </div>
+        <div>
+          <label for="password2">Confirmer *</label>
+          <input id="password2" type="password" name="password2" required minlength="6">
+        </div>
+      </div>
+
+      <fieldset style="border:1.5px dashed var(--border); border-radius:14px; padding:18px; margin-top:20px">
+        <legend class="muted" style="font-size:13px; padding:0 8px">🏢 Si vous êtes une agence</legend>
+        <label for="agency_name">Nom de l'agence</label>
+        <input id="agency_name" name="agency_name" value="<%= old.agency_name || '' %>" placeholder="Ex : Agence Espoir Domestique">
+        <div class="form-row">
+          <div>
+            <label for="ville">Ville</label>
+            <select id="ville" name="ville">
+              <% H.VILLES.forEach(v => { %><option <%= old.ville === v ? 'selected' : '' %>><%= v %></option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label for="commune">Commune / quartier</label>
+            <input id="commune" name="commune" value="<%= old.commune || '' %>" list="communes" placeholder="Ex : Cocody">
+            <datalist id="communes"><% H.COMMUNES.forEach(c => { %><option value="<%= c %>"><% }) %></datalist>
+          </div>
+        </div>
+        <label for="description">Présentation de l'agence</label>
+        <textarea id="description" name="description" style="min-height:80px" placeholder="Vos services, vos garanties, vos zones d'intervention…"><%= old.description || '' %></textarea>
+      </fieldset>
+
+      <button class="btn btn-primary btn-block" style="margin-top:22px" type="submit">Créer mon compte</button>
+      <p class="form-note" style="text-align:center; margin-top:12px">Déjà inscrit ? <a href="/connexion"><b>Se connecter</b></a></p>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

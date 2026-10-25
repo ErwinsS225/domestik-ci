@@ -1,0 +1,51 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<section class="page">
+  <div class="container" style="max-width:860px">
+    <div class="section-head"><div>
+      <span class="eyebrow">Offre agence</span>
+      <h2>Abonnement Premium</h2>
+    </div></div>
+
+    <% if (isPremium) { %>
+      <div class="card empty" style="background:#e6f7ee">
+        <div class="ico">🎉</div>
+        <h3>Vous êtes Premium !</h3>
+        <p>Votre abonnement est actif jusqu'au <b><%= H.fmtDate(agency.subscribed_until) %></b> (<%= H.premiumDaysLeft(agency) %> jours restants).</p>
+        <a href="/paiement/subscription" class="btn btn-primary" style="margin-top:12px">Prolonger de 30 jours — <%= H.fcfa(H.PRICES.subscription.amount) %></a>
+      </div>
+    <% } else { %>
+      <div class="grid grid-2">
+        <div class="card price-card">
+          <h3>Gratuit</h3>
+          <span class="amount">0 FCFA</span>
+          <span class="muted">pour démarrer</span>
+          <ul>
+            <li>Jusqu'à 3 annonces actives</li>
+            <li>Position standard dans les recherches</li>
+            <li>Statistiques de base (vues, contacts)</li>
+          </ul>
+          <span class="badge badge-status" style="align-self:flex-start">Votre offre actuelle</span>
+        </div>
+        <div class="card price-card featured">
+          <span class="tag">Recommandé</span>
+          <h3>★ Premium</h3>
+          <span class="amount"><%= H.fcfa(H.PRICES.subscription.amount) %></span>
+          <span class="muted">par mois (30 jours)</span>
+          <ul>
+            <li>Annonces <b>illimitées</b></li>
+            <li><b>Priorité</b> dans les résultats de recherche</li>
+            <li>Statistiques avancées & <b>prévisions</b> de contacts</li>
+            <li>Badge ★ Premium sur toutes vos annonces</li>
+            <li>Support prioritaire</li>
+          </ul>
+          <a href="/paiement/subscription" class="btn btn-primary btn-block">Activer Premium via Wave</a>
+        </div>
+      </div>
+      <p class="form-note" style="text-align:center; margin-top:16px">Paiement Wave · sans engagement, renouvellement manuel.</p>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,49 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<div class="page-narrow">
+  <div class="panel">
+    <h2>📬 Nous contacter</h2>
+    <p class="muted" style="margin:6px 0 6px">Une question, un partenariat, un paiement à confirmer ? Écrivez-nous — réponse rapide, souvent sous 24 h.</p>
+
+    <form method="post" action="/contact">
+      <div class="form-row">
+        <div>
+          <label for="name">Votre nom *</label>
+          <input id="name" name="name" required value="<%= user ? user.name : '' %>">
+        </div>
+        <div>
+          <label for="email">Email *</label>
+          <input id="email" type="email" name="email" required value="<%= user ? user.email : '' %>">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label for="phone">Téléphone / WhatsApp</label>
+          <input id="phone" name="phone" value="<%= user ? (user.phone || '') : '' %>" placeholder="+225 …">
+        </div>
+        <div>
+          <label for="subject">Sujet</label>
+          <select id="subject" name="subject">
+            <option>Question</option>
+            <option>Partenariat — je suis une agence</option>
+            <option>Assistance paiement</option>
+            <option>Signalement (arnaque, abus…)</option>
+            <option>Autre</option>
+          </select>
+        </div>
+      </div>
+      <label for="body">Votre message *</label>
+      <textarea id="body" name="body" required minlength="10" placeholder="Décrivez votre besoin…"></textarea>
+      <button class="btn btn-primary btn-block" style="margin-top:20px" type="submit">Envoyer le message</button>
+    </form>
+  </div>
+
+  <div class="panel" style="margin-top:18px; font-size:14px">
+    <b>📍 Domestik CI</b> — Abidjan, Côte d'Ivoire<br>
+    <span class="muted">Vous préférez WhatsApp ?</span>
+    <a href="<%= H.waLink(H.PRICES.platform_phone) %>" target="_blank" rel="noopener"><b style="color:var(--green)">Écrivez-nous directement 💬</b></a>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

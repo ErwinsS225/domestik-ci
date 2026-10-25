@@ -1,0 +1,82 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container" style="max-width:880px">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>🎨 Contenus du site</h2>
+      <p class="muted" style="font-size:14px">Modifiez les textes, titres et images sans toucher au code. Les changements sont <b>visibles immédiatement</b>.</p>
+    </div></div>
+    <%- include('tabs') %>
+
+    <!-- ============ BANDEAU PROMO + TEXTES (un seul formulaire) ============ -->
+    <form method="post" action="/admin/contenus">
+      <% FORM.forEach(sec => { %>
+        <% const imageFields = sec.fields.filter(f => f.kind === 'image'); %>
+        <div class="panel" style="margin-bottom:22px<%= sec.id === 'promo' ? '; border-color:#F8B968' : '' %>">
+          <h3 style="margin-bottom:4px"><%= sec.icon %> <%= sec.title %></h3>
+          <% if (sec.help) { %><p class="muted" style="font-size:13px; margin-bottom:6px"><%- sec.help %></p><% } %>
+
+          <% sec.fields.filter(f => f.kind !== 'image').forEach(f => { %>
+            <% if (f.kind === 'toggle') { %>
+              <label style="display:flex; gap:12px; align-items:center; font-weight:700; cursor:pointer; margin-top:14px">
+                <input type="checkbox" name="<%= f.key %>" style="width:auto" <%= SITE[f.key] === '1' ? 'checked' : '' %>>
+                <%= f.label %>
+              </label>
+            <% } else { %>
+              <label for="<%= f.key %>"><%= f.label %></label>
+              <% if (f.kind === 'textarea') { %>
+                <textarea id="<%= f.key %>" name="<%= f.key %>" rows="3"><%= SITE[f.key] %></textarea>
+              <% } else { %>
+                <input id="<%= f.key %>" name="<%= f.key %>" value="<%= SITE[f.key].replace(/"/g, '&quot;') %>" placeholder="<%= f.placeholder || '' %>">
+              <% } %>
+              <% if (f.help) { %><p class="form-note"><%- f.help %></p><% } %>
+            <% } %>
+          <% }) %>
+
+          <!-- Aperçu en direct du bandeau promo -->
+          <% if (sec.id === 'promo' && SITE.promo_active === '1') { %>
+            <div class="promo-bar" style="border-radius:12px; margin-top:14px">Aperçu → <%= SITE.promo_text %></div>
+          <% } %>
+
+          <!-- Champs image : aperçu + upload séparé -->
+          <% imageFields.forEach(f => { %>
+            <div style="margin-top:16px">
+              <label><%= f.label %></label>
+              <% if (SITE[f.key]) { %>
+                <div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap">
+                  <img src="<%= SITE[f.key] %>" alt="" style="width:220px; border-radius:14px; box-shadow:0 6px 18px rgba(15,41,66,.18)">
+                  <form method="post" action="/admin/contenus/image-retirer" data-confirm="Retirer cette image ?">
+                    <input type="hidden" name="champ" value="<%= f.key %>">
+                    <button class="btn btn-sm btn-ghost" type="submit">🗑 Retirer l'image</button>
+                  </form>
+                </div>
+              <% } else { %>
+                <p class="muted" style="font-size:13px; margin:2px 0 8px">Aucune image pour l'instant — la bannière s'affiche sans illustration.</p>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% }) %>
+
+      <button class="btn btn-primary btn-block" type="submit">💾 Enregistrer tous les textes</button>
+    </form>
+
+    <!-- ============ UPLOAD IMAGES (formulaires séparés, multipart) ============ -->
+    <div class="panel" style="margin-top:22px">
+      <h3 style="margin-bottom:10px">🖼 Images des sections</h3>
+      <% FORM.flatMap(s => s.fields).filter(f => f.kind === 'image').forEach(f => { %>
+        <form method="post" action="/admin/contenus/image" enctype="multipart/form-data" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:12px">
+          <input type="hidden" name="champ" value="<%= f.key %>">
+          <span style="min-width:200px"><b><%= f.label %></b></span>
+          <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" required style="flex:1; margin:0; font-size:13px">
+          <button class="btn btn-sm btn-outline" type="submit">⬆ Remplacer</button>
+        </form>
+      <% }) %>
+      <p class="form-note">Format JPG, PNG ou WEBP — 5 Mo max. L'image est redimensionnée automatiquement (max 1200 px) et allégée pour le mobile.</p>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

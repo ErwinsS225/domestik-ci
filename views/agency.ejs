@@ -1,0 +1,89 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <!-- ================= EN-TÊTE AGENCE ================= -->
+    <div class="panel" style="margin-bottom:26px">
+      <div class="detail-head" style="margin-bottom:6px">
+        <span class="avatar avatar-lg" style="background:<%= H.avatarColor(a.agency_name) %>"><%= a.agency_name.charAt(0) %></span>
+        <div>
+          <h1><%= a.agency_name %></h1>
+          <p class="muted">
+            📍 <%= a.commune ? a.commune + ', ' : '' %><%= a.ville %> · Membre depuis <%= H.fmtDate(a.member_since) %>
+          </p>
+          <p style="margin-top:6px">
+            <% if (a.verified) { %><span class="badge badge-verified">✔ Agence vérifiée par Domestik CI</span><% } %>
+            <% if (H.isPremium(a)) { %><span class="badge badge-premium">★ Premium</span><% } %>
+          </p>
+        </div>
+      </div>
+      <% if (a.description) { %><p class="detail-desc" style="margin:14px 0 4px"><%= a.description %></p><% } %>
+
+      <!-- KPIs de confiance -->
+      <div class="stat-cards" style="margin:20px 0 4px">
+        <div class="card stat-card" style="box-shadow:none">
+          <span class="n" style="color:var(--orange)"><span class="stars" style="font-size:20px">★</span> <%= H.noteFr(revStats.avg) %></span>
+          <span class="l">Note moyenne</span>
+        </div>
+        <div class="card stat-card" style="box-shadow:none">
+          <span class="n"><%= revStats.n %></span>
+          <span class="l">Avis vérifiés</span>
+        </div>
+        <div class="card stat-card" style="box-shadow:none">
+          <span class="n" style="color:var(--green)">✅ <%= hires %></span>
+          <span class="l">Embauches confirmées</span>
+        </div>
+        <div class="card stat-card" style="box-shadow:none">
+          <span class="n"><%= listings.length %></span>
+          <span class="l">Profils disponibles</span>
+        </div>
+      </div>
+      <p class="muted" style="font-size:12.5px">🔒 Le numéro de cette agence se débloque depuis l'une de ses annonces (2 000 FCFA).</p>
+    </div>
+
+    <!-- ================= ANNONCES DE L'AGENCE ================= -->
+    <h3 style="margin-bottom:16px">Profils proposés (<%= listings.length %>)</h3>
+    <% if (listings.length) { %>
+      <div class="grid grid-3" style="margin-bottom:40px">
+        <% listings.forEach(l => { %><%- include('partials/listing-card', { l, H }) %><% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty" style="margin-bottom:40px"><div class="ico">📭</div><p>Aucune annonce active pour le moment.</p></div>
+    <% } %>
+
+    <!-- ================= AVIS SUR L'AGENCE ================= -->
+    <div class="panel">
+      <span class="eyebrow">Réputation vérifiée</span>
+      <h3 style="margin:4px 0 6px">
+        Avis des employeurs
+        <% if (revStats.n) { %>— <span class="stars"><%= H.stars(revStats.avg) %></span> <%= H.noteFr(revStats.avg) %>/5<% } %>
+      </h3>
+      <p class="muted" style="font-size:13px">🛡 Chaque avis provient d'une famille ayant réellement débloqué un contact de cette agence.</p>
+
+      <% if (reviews.length) { %>
+        <% reviews.forEach(r => { %>
+          <div class="review">
+            <div class="review-head">
+              <span class="avatar avatar-sm" style="background:<%= H.avatarColor(r.author) %>"><%= r.author.charAt(0) %></span>
+              <div>
+                <b><%= H.maskedName(r.author) %></b>
+                <span class="badge badge-verified">✔ vérifié</span>
+                <% if (r.hired === 1) { %><span class="badge badge-pourvue">✅ embauche confirmée</span><% } %>
+                <br>
+                <span class="stars"><%= H.stars(r.rating) %></span>
+                <span class="muted" style="font-size:12px"> · <%= H.fmtDate(r.created_at) %> · annonce <a href="/annonce/<%= r.lid %>"><i><%= r.title %></i></a></span>
+              </div>
+            </div>
+            <% if (r.comment) { %><p style="margin-top:8px; font-size:14.5px"><%= r.comment %></p><% } %>
+            <% if (r.agency_reply) { %><div class="reply-box"><b>↩ Réponse de l'agence</b><%= r.agency_reply %></div><% } %>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p class="muted" style="margin-top:14px">Aucun avis pour l'instant.</p>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

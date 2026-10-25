@@ -1,0 +1,20 @@
+# Dépendances (réinstallées via npm install)
+node_modules/
+
+# Base de données locale (régénérée automatiquement au 1er démarrage)
+data.sqlite*
+
+# Secrets
+.env
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Uploads utilisateurs (on garde les photos de démo pour le clonage)
+public/uploads/site/
+public/uploads/listings/*
+!public/uploads/listings/demo-*.webp
+
+# Logs
+*.log

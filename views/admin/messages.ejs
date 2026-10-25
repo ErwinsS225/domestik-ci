@@ -1,0 +1,43 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>📬 Messages reçus (page Contact)</h2>
+    </div></div>
+    <%- include('tabs') %>
+
+    <% if (messages.length) { %>
+      <div class="grid" style="gap:12px">
+        <% messages.forEach(m => { %>
+          <div class="card <%= m.status === 'traite' ? 'row-masked' : '' %>" style="padding:18px">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap">
+              <div>
+                <b><%= m.name %></b>
+                <span class="badge badge-status"><%= m.subject %></span>
+                <% if (m.status === 'nouveau') { %><span class="badge badge-boost">nouveau</span><% } %>
+                <br>
+                <span class="muted" style="font-size:12.5px">
+                  <%= H.fmtDate(m.created_at) %> · <a href="mailto:<%= m.email %>"><%= m.email %></a>
+                  <% if (m.phone) { %> · <a href="<%= H.waLink(m.phone) %>" target="_blank" rel="noopener"><%= m.phone %></a><% } %>
+                </span>
+              </div>
+              <form method="post" action="/admin/messages/<%= m.id %>/statut">
+                <button class="btn btn-sm <%= m.status === 'nouveau' ? 'btn-outline' : 'btn-ghost' %>" type="submit">
+                  <%= m.status === 'nouveau' ? '✔ Marquer traité' : '↩ Rouvrir' %>
+                </button>
+              </form>
+            </div>
+            <p style="margin-top:10px; font-size:14px"><%= m.body %></p>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty"><div class="ico">📭</div><h3>Aucun message</h3><p class="muted">Les messages envoyés via <a href="/contact">/contact</a> arrivent ici.</p></div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

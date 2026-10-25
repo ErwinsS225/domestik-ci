@@ -1,0 +1,80 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Mon espace</span>
+        <h2>Mes contacts débloqués</h2>
+      </div>
+      <a href="/recherche" class="btn btn-primary btn-sm">🔍 Nouvelle recherche</a>
+    </div>
+
+    <% if (unlocks.length) { %>
+      <div class="grid grid-2">
+        <% unlocks.forEach(u => { %>
+          <div class="card" style="padding:20px">
+            <div class="card-top" style="margin-bottom:8px">
+              <span class="avatar" style="background:<%= H.avatarColor(u.worker_name) %>"><%= u.worker_name.charAt(0) %></span>
+              <div class="card-head">
+                <a href="/annonce/<%= u.id %>"><strong class="card-title"><%= u.title %></strong></a>
+                <span class="card-sub"><%= u.cat_icon %> <%= u.cat_name %> · <%= u.commune ? u.commune + ', ' : '' %><%= u.ville %></span>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; border-top:1px dashed var(--border); padding-top:12px">
+              <div>
+                <span class="muted" style="font-size:12px"><%= u.agency_name %> · débloqué le <%= H.fmtDate(u.paid_at) %></span><br>
+                <b style="color:var(--green)"><%= u.agency_phone %></b>
+              </div>
+              <div class="actions">
+                <a class="btn btn-sm btn-green" href="<%= H.waLink(u.agency_phone) %>" target="_blank" rel="noopener">💬 WhatsApp</a>
+                <a class="btn btn-sm btn-outline" href="tel:+<%= (u.agency_phone || '').replace(/\D/g,'') %>">📞 Appeler</a>
+              </div>
+            </div>
+            <div style="margin-top:10px; font-size:13px">
+              <% if (u.my_rating) { %>
+                <span class="muted">Votre avis : <span class="stars"><%= H.stars(u.my_rating) %></span></span>
+                · <a href="/annonce/<%= u.id %>#avis">Modifier</a>
+              <% } else { %>
+                <a href="/annonce/<%= u.id %>#avis" class="btn btn-sm btn-ghost">⭐ Laisser un avis vérifié</a>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty">
+        <div class="ico">📇</div>
+        <h3>Aucun contact débloqué pour l'instant</h3>
+        <p>Parcourez les annonces et débloquez le numéro de l'agence (2 000 FCFA) pour entrer en contact.</p>
+        <a href="/recherche" class="btn btn-primary" style="margin-top:14px">Découvrir les profils</a>
+      </div>
+    <% } %>
+
+    <% if (payments.length) { %>
+      <h3 style="margin:38px 0 14px">Historique des paiements</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Opération</th><th>Montant</th><th>Statut</th></tr></thead>
+          <tbody>
+            <% payments.forEach(p => { %>
+              <tr>
+                <td><%= H.fmtDate(p.created_at) %></td>
+                <td><%= p.label %></td>
+                <td><b><%= H.fcfa(p.amount) %></b></td>
+                <td>
+                  <% if (p.status === 'en_attente') { %><span class="badge badge-pending">⏳ validation en cours</span>
+                  <% } else if (p.status === 'success') { %><span class="badge badge-verified">✔ validé</span>
+                  <% } else { %><span class="badge badge-masque">🚫 rejeté</span><% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

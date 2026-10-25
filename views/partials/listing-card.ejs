@@ -1,0 +1,33 @@
+<a class="card listing-card" href="/annonce/<%= l.id %>">
+  <% if (l.photo) { %>
+    <div class="card-photo-wrap">
+      <img class="card-photo" src="<%= l.photo %>" alt="Photo de <%= l.worker_name %>" loading="lazy">
+      <% if (H.isBoosted(l)) { %><span class="badge badge-boost badge-float">⚡</span><% } %>
+    </div>
+  <% } %>
+  <div class="card-body">
+    <div class="card-top">
+      <% if (!l.photo) { %><span class="avatar" style="background:<%= H.avatarColor(l.worker_name) %>"><%= l.worker_name.charAt(0) %></span><% } %>
+      <div class="card-head">
+        <strong class="card-title"><%= l.title %></strong>
+        <span class="card-sub"><%= l.cat_icon %> <%= l.cat_name %> · <%= l.worker_name %><% if (l.age) { %> · <%= l.age %> ans<% } %></span>
+      </div>
+      <% if (!l.photo && H.isBoosted(l)) { %><span class="badge badge-boost" title="Annonce boostée">⚡</span><% } %>
+    </div>
+    <p class="card-desc"><%= (l.description || '').slice(0, 110) %>…</p>
+    <div class="card-meta">
+      <span>📍 <%= l.commune ? l.commune + ', ' : '' %><%= l.ville %></span>
+      <span>🕐 <%= l.availability %></span>
+      <% if (l.experience_years) { %><span>🎖 <%= l.experience_years %> ans d'exp.</span><% } %>
+    </div>
+    <div class="card-foot">
+      <span class="price"><%= H.salary(l.salary_min, l.salary_max) %></span>
+      <span class="agency-line">
+        <%= l.agency_name %>
+        <% if (l.verified) { %><span class="badge badge-verified" title="Agence vérifiée">✔</span><% } %>
+        <% if (H.isPremium(l)) { %><span class="badge badge-premium" title="Agence Premium">★</span><% } %>
+        <% if (l.agency_rating) { %><span class="badge badge-rating" title="Note moyenne sur <%= l.agency_reviews %> avis vérifiés">★ <%= H.noteFr(l.agency_rating) %></span><% } %>
+      </span>
+    </div>
+  </div>
+</a>

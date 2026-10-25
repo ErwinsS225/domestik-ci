@@ -1,0 +1,71 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<section class="page">
+  <div class="container" style="max-width:760px">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Espace agence</span>
+        <h2>🔔 Notifications</h2>
+      </div>
+      <div>
+        <span class="eyebrow">Mon espace</span>
+        <h2>🔔 Notifications</h2>
+      </div>
+      <% if (notifs.some(n => !n.read_at)) { %>
+        <form method="post" action="/notifications/tout-lu">
+          <button class="btn btn-sm btn-ghost" type="submit">Tout marquer comme lu</button>
+        </form>
+      <% } %>
+    </div>
+
+    <% if (agency) { %>
+    <!-- Préférence WhatsApp -->
+    <div class="panel" style="margin-bottom:22px; display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap">
+      <div>
+        <b>📲 Alertes WhatsApp</b>
+        <p class="muted" style="font-size:13px; margin-top:2px">
+          Recevez une alerte WhatsApp sur <b><%= user.phone || 'votre numéro' %></b> à chaque nouveau client, avis ou échéance importante.
+        </p>
+      </div>
+      <form method="post" action="/agence/notifications/whatsapp-toggle">
+        <button class="btn btn-sm <%= agency.notify_wa ? 'btn-green' : 'btn-ghost' %>" type="submit">
+          <%= agency.notify_wa ? '✔ Activées' : 'Activer' %>
+        </button>
+      </form>
+    </div>
+    <% } %>
+
+    <% if (notifs.length) { %>
+      <div class="card" style="padding:6px 20px">
+        <% notifs.forEach(n => { %>
+          <form method="post" action="/notifications/<%= n.id %>/lu" class="notif-line <%= n.read_at ? '' : 'unread' %>">
+            <button type="submit" title="<%= n.link ? 'Ouvrir' : 'Marquer lue' %>">
+              <span class="notif-ico"><%= KIND_ICONS[n.kind] || '🔔' %></span>
+              <span style="flex:1; text-align:left">
+                <b><%= n.title %></b>
+                <% if (!n.read_at) { %><span class="badge badge-boost" style="margin-left:6px">nouveau</span><% } %>
+                <br>
+                <span class="muted" style="font-size:13px"><%= n.body %></span>
+              </span>
+              <span style="text-align:right; flex-shrink:0">
+                <span class="muted" style="font-size:11.5px; display:block"><%= H.timeAgo(n.created_at) %></span>
+                <% if (n.wa_status === 'sent') { %><span style="font-size:11px" title="Alerte envoyée sur WhatsApp">📲 ✔</span>
+                <% } else if (n.wa_status === 'queued') { %><span class="muted" style="font-size:11px" title="Alerte WhatsApp en préparation">📲 …</span><% } %>
+              </span>
+            </button>
+          </form>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty">
+        <div class="ico">🔕</div>
+        <h3>Aucune notification</h3>
+        <p>Nouveaux clients, avis reçus, confirmations de boost — tout arrive ici.</p>
+      </div>
+    <% } %>
+    <p style="margin-top:16px"><a href="/agence" class="muted">← Retour au tableau de bord</a></p>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

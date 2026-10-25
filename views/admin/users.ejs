@@ -1,0 +1,50 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>👥 Utilisateurs inscrits (<%= users.length %>)</h2>
+    </div></div>
+    <%- include('tabs') %>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Nom</th><th>Contact</th><th>Rôle</th><th>Activité</th><th>Inscrit</th><th>Statut</th><th></th></tr></thead>
+        <tbody>
+          <% users.forEach(u => { %>
+            <tr class="<%= u.active ? '' : 'row-masked' %>">
+              <td><b><%= u.name %></b></td>
+              <td>
+                <span style="font-size:13px"><%= u.email %></span><br>
+                <span class="muted" style="font-size:12px"><%= u.phone || '—' %></span>
+              </td>
+              <td>
+                <% if (u.role === 'user') { %><span class="badge badge-status">👤 Chercheur</span>
+                <% } else { %><span class="badge badge-premium">🏢 Agence</span><% } %>
+              </td>
+              <td class="muted" style="font-size:12.5px">
+                <% if (u.role === 'user') { %>🔓 <%= u.n_unlocks %> contact(s) · ⭐ <%= u.n_reviews %> avis<% } else { %>voir onglet Agences<% } %>
+              </td>
+              <td class="muted" style="font-size:12.5px"><%= H.fmtDate(u.created_at) %></td>
+              <td>
+                <% if (u.active) { %><span class="badge badge-verified">✔ actif</span>
+                <% } else { %><span class="badge badge-masque">🚫 suspendu</span><% } %>
+              </td>
+              <td>
+                <% if (u.role !== 'admin') { %>
+                  <form method="post" action="/admin/utilisateurs/<%= u.id %>/basculer" data-confirm="<%= u.active ? 'Suspendre ce compte ? Il ne pourra plus se connecter.' : 'Réactiver ce compte ?' %>">
+                    <button class="btn btn-sm btn-ghost" type="submit"><%= u.active ? 'Suspendre' : 'Réactiver' %></button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

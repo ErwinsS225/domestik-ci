@@ -1,0 +1,54 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head"><div>
+      <span class="eyebrow">Espace propriétaire</span>
+      <h2>📢 Modération des annonces</h2>
+    </div></div>
+    <%- include('tabs') %>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Annonce</th><th>Agence</th><th>Statut</th><th>👁</th><th>🔓</th><th>⚡ Boost</th><th>Action</th></tr></thead>
+        <tbody>
+          <% listings.forEach(l => { %>
+            <tr class="<%= l.status === 'retiree' ? 'row-masked' : '' %>">
+              <td>
+                <% if (l.photo) { %><img class="thumb-sm" src="<%= l.photo %>" alt=""><% } %>
+                <a href="/annonce/<%= l.id %>"><b><%= l.title %></b></a><br>
+                <span class="muted" style="font-size:12px"><%= l.cat_icon %> <%= l.cat_name %> · <%= l.commune || l.ville %> · <%= H.timeAgo(l.created_at) %></span>
+              </td>
+              <td><a href="/agences/<%= l.agency_id %>"><%= l.agency_name %></a></td>
+              <td>
+                <% if (l.status === 'active') { %><span class="badge badge-status">Active</span>
+                <% } else if (l.status === 'pause') { %><span class="badge badge-pause">Pause</span>
+                <% } else if (l.status === 'pourvue') { %><span class="badge badge-pourvue">Pourvue</span>
+                <% } else { %><span class="badge badge-masque">Retirée</span><% } %>
+              </td>
+              <td><%= l.views %></td>
+              <td><b style="color:var(--green)"><%= l.unlocks %></b></td>
+              <td><% if (H.isBoosted(l)) { %><span class="badge badge-boost">⚡ <%= H.fmtDate(l.boosted_until) %></span><% } else { %><span class="muted">—</span><% } %></td>
+              <td>
+                <% if (l.status === 'retiree') { %>
+                  <form method="post" action="/admin/annonces/<%= l.id %>/statut">
+                    <input type="hidden" name="statut" value="active">
+                    <button class="btn btn-sm btn-outline" type="submit">♻ Restaurer</button>
+                  </form>
+                <% } else { %>
+                  <form method="post" action="/admin/annonces/<%= l.id %>/statut" data-confirm="Retirer cette annonce de la plateforme ? (modération)">
+                    <input type="hidden" name="statut" value="retiree">
+                    <button class="btn btn-sm btn-ghost" type="submit">🗑 Retirer</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

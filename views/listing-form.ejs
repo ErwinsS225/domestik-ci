@@ -1,0 +1,117 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<div class="page-narrow">
+  <div class="panel">
+    <h2><%= l && l.id ? 'Modifier l\u2019annonce' : 'Publier une annonce' %></h2>
+    <p class="muted" style="margin:6px 0 6px">Présentez un profil de votre catalogue. Le numéro affiché aux clients sera celui de votre agence.</p>
+
+    <form method="post" action="<%= action %>" enctype="multipart/form-data">
+      <label for="title">Titre de l'annonce *</label>
+      <input id="title" name="title" required maxlength="120" value="<%= l ? l.title : '' %>" placeholder="Ex : Nounou expérimentée — disponible immédiatement">
+
+      <!-- PHOTO DU PROFIL -->
+      <label for="photo">📸 Photo du profil <span class="muted" style="font-weight:400">(fortement recommandée)</span></label>
+      <div style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap">
+        <% if (l && l.photo) { %>
+          <img src="<%= l.photo %>" alt="Photo actuelle" class="photo-preview">
+        <% } %>
+        <div style="flex:1; min-width:240px">
+          <input id="photo" type="file" name="photo" accept="image/jpeg,image/png,image/webp">
+          <p class="form-note">
+            JPG, PNG ou WEBP · 5 Mo max · recadrée automatiquement en carré, centrée sur le visage.<br>
+            💡 Une photo nette et professionnelle <b>multiplie par 5 les déblocages</b> de contact.
+          </p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="category_id">Catégorie *</label>
+          <select id="category_id" name="category_id" required>
+            <option value="">Choisir…</option>
+            <% categories.forEach(c => { %>
+              <option value="<%= c.id %>" <%= l && String(l.category_id) === String(c.id) ? 'selected' : '' %>><%= c.icon %> <%= c.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label for="worker_name">Prénom + initiale du personnel *</label>
+          <input id="worker_name" name="worker_name" required maxlength="60" value="<%= l ? l.worker_name : '' %>" placeholder="Ex : Awa K.">
+          <p class="form-note">Ne publiez pas le nom complet pour protéger son identité.</p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="gender">Genre</label>
+          <select id="gender" name="gender">
+            <option value="F" <%= l && l.gender === 'F' ? 'selected' : '' %>>Femme</option>
+            <option value="M" <%= l && l.gender === 'M' ? 'selected' : '' %>>Homme</option>
+          </select>
+        </div>
+        <div>
+          <label for="age">Âge</label>
+          <input id="age" type="number" name="age" min="18" max="80" value="<%= l && l.age ? l.age : '' %>" placeholder="Ex : 30">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="experience_years">Années d'expérience</label>
+          <input id="experience_years" type="number" name="experience_years" min="0" max="50" value="<%= l ? l.experience_years : '' %>" placeholder="Ex : 5">
+        </div>
+        <div>
+          <label for="availability">Disponibilité</label>
+          <select id="availability" name="availability">
+            <% ['Immédiate', 'Sous 1 semaine', 'Sous 1 mois'].forEach(a => { %>
+              <option <%= l && l.availability === a ? 'selected' : '' %>><%= a %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="ville">Ville *</label>
+          <select id="ville" name="ville">
+            <% H.VILLES.forEach(v => { %><option <%= l && l.ville === v ? 'selected' : '' %>><%= v %></option><% }) %>
+          </select>
+        </div>
+        <div>
+          <label for="commune">Commune / quartier</label>
+          <input id="commune" name="commune" list="communes" value="<%= l ? (l.commune || '') : '' %>" placeholder="Ex : Cocody">
+          <datalist id="communes"><% H.COMMUNES.forEach(c => { %><option value="<%= c %>"><% }) %></datalist>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="salary_min">Salaire min (FCFA/mois)</label>
+          <input id="salary_min" type="number" name="salary_min" min="0" step="5000" value="<%= l && l.salary_min ? l.salary_min : '' %>" placeholder="Ex : 60000">
+        </div>
+        <div>
+          <label for="salary_max">Salaire max (FCFA/mois)</label>
+          <input id="salary_max" type="number" name="salary_max" min="0" step="5000" value="<%= l && l.salary_max ? l.salary_max : '' %>" placeholder="Ex : 100000">
+        </div>
+      </div>
+
+      <label for="contract_type">Type de contrat</label>
+      <select id="contract_type" name="contract_type">
+        <% ['Temps plein', 'Temps partiel', 'À la journée'].forEach(t => { %>
+          <option <%= l && l.contract_type === t ? 'selected' : '' %>><%= t %></option>
+        <% }) %>
+      </select>
+
+      <label for="description">Compétences & présentation * (min. 20 caractères)</label>
+      <textarea id="description" name="description" required placeholder="Décrivez l'expérience, les compétences clés, les références, le caractère…"><%= l ? (l.description || '') : '' %></textarea>
+
+      <button class="btn btn-primary btn-block" style="margin-top:22px" type="submit">
+        <%= l && l.id ? '💾 Enregistrer les modifications' : '📢 Publier l\u2019annonce' %>
+      </button>
+      <p class="form-note" style="text-align:center; margin-top:12px"><a href="/agence">← Retour au tableau de bord</a></p>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

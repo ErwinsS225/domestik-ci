@@ -1,0 +1,188 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <p class="muted" style="margin-bottom:18px"><a href="/recherche">← Retour à la recherche</a></p>
+    <div class="detail-grid">
+
+      <!-- Colonne principale -->
+      <div>
+        <div class="panel">
+          <div class="detail-head">
+            <% if (l.photo) { %>
+              <img class="photo-lg" src="<%= l.photo %>" alt="Photo de <%= l.worker_name %>">
+            <% } else { %>
+              <span class="avatar avatar-lg" style="background:<%= H.avatarColor(l.worker_name) %>"><%= l.worker_name.charAt(0) %></span>
+            <% } %>
+            <div>
+              <h1><%= l.title %></h1>
+              <p class="muted">
+                <%= l.cat_icon %> <%= l.cat_name %> · Publiée <%= H.timeAgo(l.created_at) %> · <%= l.views %> vue<%= l.views > 1 ? 's' : '' %>
+                <% if (revStats.n) { %>
+                  · <span class="stars"><%= H.stars(revStats.avg) %></span> <b><%= H.noteFr(revStats.avg) %>/5</b>
+                  <a href="#avis">(<%= revStats.n %> avis vérifié<%= revStats.n > 1 ? 's' : '' %>)</a>
+                <% } %>
+              </p>
+            </div>
+            <% if (H.isBoosted(l)) { %><span class="badge badge-boost">⚡ Boosté</span><% } %>
+          </div>
+
+          <div class="spec-list">
+            <div class="spec"><span class="muted">Profil</span><b><%= l.worker_name %><% if (l.age) { %>, <%= l.age %> ans<% } %></b></div>
+            <div class="spec"><span class="muted">Genre</span><b><%= l.gender === 'F' ? 'Femme' : 'Homme' %></b></div>
+            <div class="spec"><span class="muted">Expérience</span><b><%= l.experience_years %> an<%= l.experience_years > 1 ? 's' : '' %></b></div>
+            <div class="spec"><span class="muted">Localisation</span><b><%= l.commune ? l.commune + ', ' : '' %><%= l.ville %></b></div>
+            <div class="spec"><span class="muted">Contrat</span><b><%= l.contract_type %></b></div>
+            <div class="spec"><span class="muted">Disponibilité</span><b><%= l.availability %></b></div>
+          </div>
+
+          <h3>Compétences & présentation</h3>
+          <p class="detail-desc"><%= l.description %></p>
+
+          <div class="card-foot" style="border-top:1px solid var(--border)">
+            <span class="muted" style="font-size:12.5px">Prétentions salariales</span>
+            <span class="price" style="font-size:20px"><%= H.salary(l.salary_min, l.salary_max) %></span>
+          </div>
+        </div>
+
+        <!-- ================= AVIS VÉRIFIÉS ================= -->
+        <section class="panel" id="avis" style="margin-top:24px">
+          <div class="section-head" style="margin-bottom:8px">
+            <div>
+              <span class="eyebrow">Avis 100 % vérifiés</span>
+              <h3>Notes & avis des employeurs
+                <% if (revStats.n) { %>— <span class="stars"><%= H.stars(revStats.avg) %></span> <%= H.noteFr(revStats.avg) %>/5 (<%= revStats.n %>)<% } %>
+              </h3>
+            </div>
+          </div>
+          <p class="muted" style="font-size:13px">
+            🛡 Un avis ne peut être publié que par un utilisateur ayant <b>réellement débloqué ce contact</b> (2 000 FCFA). Zéro faux avis.
+          </p>
+
+          <% if (user && user.role === 'user' && unlocked) { %>
+            <form method="post" action="/annonce/<%= l.id %>/avis" class="card" style="padding:20px; margin-top:16px; background:#FBF7F1">
+              <b style="font-size:15px"><%= myReview ? '✏️ Modifier votre avis' : '⭐ Laisser votre avis vérifié' %></b>
+              <label style="margin-top:12px">Note globale *</label>
+              <div class="stars-input">
+                <% [5, 4, 3, 2, 1].forEach(v => { %>
+                  <input type="radio" id="star<%= v %>" name="rating" value="<%= v %>" <%= myReview && myReview.rating === v ? 'checked' : '' %>>
+                  <label for="star<%= v %>" title="<%= v %> étoile<%= v > 1 ? 's' : '' %>">★</label>
+                <% }) %>
+              </div>
+              <label>Avez-vous embauché ce profil ?</label>
+              <div style="display:flex; gap:18px; font-size:14px">
+                <span><input type="radio" name="hired" value="1" id="h1" style="width:auto" <%= myReview && myReview.hired === 1 ? 'checked' : '' %>> <label for="h1" style="display:inline; margin:0; font-weight:400">✅ Oui, embauché</label></span>
+                <span><input type="radio" name="hired" value="0" id="h0" style="width:auto" <%= myReview && myReview.hired === 0 ? 'checked' : '' %>> <label for="h0" style="display:inline; margin:0; font-weight:400">Pas (encore)</label></span>
+              </div>
+              <label for="comment">Votre commentaire (conseillé)</label>
+              <textarea id="comment" name="comment" maxlength="1000" style="min-height:90px" placeholder="Ponctualité, sérieux, qualité du travail, suivi de l'agence…"><%= myReview ? (myReview.comment || '') : '' %></textarea>
+              <div style="display:flex; gap:10px; align-items:center; margin-top:14px; flex-wrap:wrap">
+                <button class="btn btn-primary btn-sm" type="submit"><%= myReview ? 'Mettre à jour' : 'Publier mon avis' %></button>
+              </div>
+            </form>
+            <% if (myReview) { %>
+              <form method="post" action="/avis/<%= myReview.id %>/supprimer" data-confirm="Supprimer votre avis ?" style="margin-top:10px">
+                <button class="btn btn-sm btn-ghost" type="submit">🗑 Supprimer mon avis</button>
+              </form>
+            <% } %>
+          <% } else if (user && user.role === 'user') { %>
+            <div class="card" style="padding:16px; margin-top:16px; background:#FBF7F1; font-size:13.5px">
+              🔒 <b>Vous avez fait appel à cette agence ?</b> Débloquez le contact (2 000 FCFA) pour pouvoir laisser un avis vérifié.
+            </div>
+          <% } %>
+
+          <% if (reviews.length) { %>
+            <div style="margin-top:8px">
+              <% reviews.forEach(r => { %>
+                <div class="review">
+                  <div class="review-head">
+                    <span class="avatar avatar-sm" style="background:<%= H.avatarColor(r.author) %>"><%= r.author.charAt(0) %></span>
+                    <div>
+                      <b><%= H.maskedName(r.author) %></b>
+                      <span class="badge badge-verified">✔ contact vérifié</span>
+                      <% if (r.hired === 1) { %><span class="badge badge-pourvue">✅ A embauché ce profil</span><% } %>
+                      <br><span class="stars"><%= H.stars(r.rating) %></span>
+                      <span class="muted" style="font-size:12px"> · <%= H.fmtDate(r.created_at) %></span>
+                    </div>
+                  </div>
+                  <% if (r.comment) { %><p style="margin-top:8px; font-size:14.5px"><%= r.comment %></p><% } %>
+                  <% if (r.agency_reply) { %>
+                    <div class="reply-box"><b>↩ Réponse de <%= l.agency_name %></b><%= r.agency_reply %></div>
+                  <% } %>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="muted" style="margin-top:16px; font-size:14px">Aucun avis pour l'instant — soyez la première famille à partager votre expérience.</p>
+          <% } %>
+        </section>
+
+        <% if (similar.length) { %>
+          <div class="section" style="padding-bottom:0">
+            <h3 style="margin-bottom:14px">Profils similaires</h3>
+            <div class="grid grid-3">
+              <% similar.forEach(s => { %>
+                <a class="card cat-card" href="/annonce/<%= s.id %>">
+                  <span class="ico"><%= s.cat_icon %></span>
+                  <b><%= s.title %></b>
+                  <small><%= s.commune ? s.commune + ', ' : '' %><%= s.ville %> · <%= H.salary(s.salary_min, s.salary_max) %></small>
+                </a>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Colonne contact -->
+      <div>
+        <div class="card contact-card">
+          <span class="eyebrow">Contact de l'agence</span>
+          <h3 style="margin-top:6px"><%= l.agency_name %></h3>
+          <p>
+            <% if (l.verified) { %><span class="badge badge-verified">✔ Agence vérifiée</span><% } %>
+            <% if (H.isPremium(l)) { %><span class="badge badge-premium">★ Premium</span><% } %>
+          </p>
+          <% if (agencyStats.n) { %>
+            <p style="margin:8px 0 2px">
+              <span class="stars"><%= H.stars(agencyStats.avg) %></span> <b><%= H.noteFr(agencyStats.avg) %>/5</b>
+              <span class="muted" style="font-size:12.5px">(<%= agencyStats.n %> avis vérifié<%= agencyStats.n > 1 ? 's' : '' %>)</span>
+            </p>
+          <% } %>
+          <p style="margin-bottom:14px"><a href="/agences/<%= l.agency_id %>" style="font-size:13px">🛡 Voir la page de l'agence →</a></p>
+
+          <% if (unlocked || isOwner) { %>
+            <p class="phone"><%= l.agency_phone %></p>
+            <p class="muted" style="font-size:13px">Contact débloqué ✔</p>
+            <a class="btn btn-green btn-block" href="<%= H.waLink(l.agency_phone) %>" target="_blank" rel="noopener">💬 Écrire sur WhatsApp</a>
+            <a class="btn btn-outline btn-block" style="margin-top:10px" href="tel:+<%= (l.agency_phone || '').replace(/\D/g,'') %>">📞 Appeler l'agence</a>
+          <% } else if (pendingUnlock) { %>
+            <div style="background:#FFF6E8; border-radius:14px; padding:16px; margin:12px 0">
+              <b>⏳ Paiement en cours de validation</b>
+              <p class="muted" style="font-size:13px; margin-top:6px">Notre équipe confirme votre transfert Wave — en général sous 2 h ouvrées. Vous serez alerté(e) dès que le contact est débloqué.</p>
+            </div>
+          <% } else if (user && user.role === 'agency') { %>
+            <p class="masked"><%= H.maskPhone(l.agency_phone) %></p>
+            <p class="muted" style="font-size:13px">Seuls les comptes « chercheur de personnel » peuvent débloquer les contacts.</p>
+          <% } else { %>
+            <p class="masked"><%= H.maskPhone(l.agency_phone) %></p>
+            <a class="btn btn-primary btn-block" href="/paiement/unlock?annonce=<%= l.id %>">🔓 Débloquer le numéro — <%= H.fcfa(H.PRICES.unlock) %></a>
+            <p class="demo-note">Paiement unique via Wave. Le contact reste accessible dans votre espace « Mes contacts ».</p>
+          <% } %>
+        </div>
+
+        <div class="card side-card" style="margin-top:16px">
+          <h4 style="margin-bottom:8px">🛡 Conseils de confiance</h4>
+          <ul class="muted" style="font-size:13px;padding-left:18px;display:flex;flex-direction:column;gap:6px">
+            <li>Rencontrez le personnel via l'agence avant tout engagement.</li>
+            <li>Demandez les références et vérifiez l'identité.</li>
+            <li>Ne payez jamais de frais directs au personnel avant embauche.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

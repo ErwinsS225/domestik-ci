@@ -1,0 +1,76 @@
+<%- include('partials/head') %>
+<%- include('partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Annuaire</span>
+        <h2>Trouvez le profil qu'il vous faut</h2>
+      </div>
+    </div>
+
+    <!-- Chips catégories -->
+    <div class="cat-chips">
+      <a class="chip <%= !categorie ? 'active' : '' %>" href="/recherche">Toutes</a>
+      <% categories.forEach(c => { %>
+        <a class="chip <%= String(categorie) === String(c.id) ? 'active' : '' %>"
+           href="/recherche?categorie=<%= c.id %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">
+          <%= c.icon %> <%= c.name %>
+        </a>
+      <% }) %>
+    </div>
+
+    <!-- Filtres -->
+    <form class="filters" method="get" action="/recherche">
+      <div>
+        <label for="q">Mot-clé</label>
+        <input type="search" id="q" name="q" value="<%= q %>" placeholder="Ex : nounou, cuisinier, Awa…">
+      </div>
+      <div>
+        <label for="categorie">Catégorie</label>
+        <select id="categorie" name="categorie">
+          <option value="">Toutes</option>
+          <% categories.forEach(c => { %>
+            <option value="<%= c.id %>" <%= String(categorie) === String(c.id) ? 'selected' : '' %>><%= c.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label for="ville">Ville / commune</label>
+        <select id="ville" name="ville">
+          <option value="">Partout</option>
+          <% villes.forEach(v => { %>
+            <option value="<%= v %>" <%= ville === v ? 'selected' : '' %>><%= v %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div>
+        <label for="tri">Trier par</label>
+        <select id="tri" name="tri">
+          <option value="" <%= !tri ? 'selected' : '' %>>Pertinence</option>
+          <option value="note" <%= tri === 'note' ? 'selected' : '' %>>Mieux notées ⭐</option>
+          <option value="experience" <%= tri === 'experience' ? 'selected' : '' %>>Expérience</option>
+          <option value="salaire_asc" <%= tri === 'salaire_asc' ? 'selected' : '' %>>Salaire croissant</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Filtrer</button>
+    </form>
+
+    <!-- Résultats -->
+    <p class="muted" style="margin-bottom:18px"><b><%= listings.length %></b> profil<%= listings.length > 1 ? 's' : '' %> trouvé<%= listings.length > 1 ? 's' : '' %></p>
+    <% if (listings.length) { %>
+      <div class="grid grid-3">
+        <% listings.forEach(l => { %><%- include('partials/listing-card', { l, H }) %><% }) %>
+      </div>
+    <% } else { %>
+      <div class="card empty">
+        <div class="ico">🔍</div>
+        <h3>Aucun profil pour ces critères</h3>
+        <p>Essayez d'élargir votre recherche ou revenez bientôt : de nouvelles annonces sont publiées chaque jour.</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

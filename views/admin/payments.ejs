@@ -1,0 +1,74 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Espace propriétaire</span>
+        <h2>💳 Paiements</h2>
+      </div>
+      <a href="/admin/export/paiements.csv" class="btn btn-sm btn-outline">⬇ Export CSV</a>
+    </div>
+    <%- include('tabs') %>
+
+    <% if (!H.PRICES.manual_review) { %>
+      <div class="panel" style="margin-bottom:22px; font-size:13.5px">
+        ℹ️ Les paiements sont actuellement <b>confirmés automatiquement</b> (mode démo).
+        Activez la <a href="/admin/reglages"><b>validation manuelle</b></a> dans Réglages quand vous encaissez par Wave réel.
+      </div>
+    <% } %>
+
+    <% if (pending > 0) { %>
+      <div class="premium-banner" style="background:linear-gradient(120deg,#B45309,#F77F00)">
+        <div>
+          <h3 style="margin-bottom:4px">⏳ <%= pending %> paiement<%= pending > 1 ? 's' : '' %> en attente de validation</h3>
+          <p style="font-size:13.5px; opacity:.9">Vérifiez votre Wave professionnel : les montants reçus doivent correspondre aux lignes ci-dessous.</p>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Payeur</th><th>Type</th><th>Opération</th><th>Montant</th><th>Statut</th><th>Action</th></tr></thead>
+        <tbody>
+          <% payments.forEach(p => { %>
+            <tr class="<%= p.status === 'rejete' ? 'row-masked' : '' %>">
+              <td style="white-space:nowrap"><%= H.fmtDate(p.created_at) %></td>
+              <td>
+                <b><%= p.payer %></b><br>
+                <span class="muted" style="font-size:12px"><%= p.payer_phone || p.payer_email %></span>
+              </td>
+              <td><%= KIND_LABELS[p.kind] || p.kind %></td>
+              <td style="font-size:13px">
+                <%= p.label %>
+                <% if (p.listing_title) { %><br><span class="muted" style="font-size:12px">→ <a href="/annonce/<%= p.ref_id %>"><i><%= p.listing_title %></i></a></span><% } %>
+              </td>
+              <td><b><%= H.fcfa(p.amount) %></b></td>
+              <td>
+                <% if (p.status === 'en_attente') { %><span class="badge badge-pending">⏳ en attente</span>
+                <% } else if (p.status === 'success') { %><span class="badge badge-verified">✔ validé</span>
+                <% } else { %><span class="badge badge-masque">🚫 rejeté</span><% } %>
+              </td>
+              <td>
+                <% if (p.status === 'en_attente') { %>
+                  <div class="actions">
+                    <form method="post" action="/admin/paiements/<%= p.id %>/valider">
+                      <button class="btn btn-sm btn-primary" type="submit">✔ Valider</button>
+                    </form>
+                    <form method="post" action="/admin/paiements/<%= p.id %>/rejeter" data-confirm="Rejeter ce paiement ? L'utilisateur sera notifié.">
+                      <button class="btn btn-sm btn-ghost" type="submit">✕</button>
+                    </form>
+                  </div>
+                <% } else { %><span class="muted">—</span><% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <p class="form-note" style="margin-top:12px">La validation applique immédiatement l'effet : contact débloqué, boost activé ou Premium accordé — et chacun est notifié.</p>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

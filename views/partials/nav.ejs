@@ -1,0 +1,39 @@
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" class="logo">Domestik<span>CI</span></a>
+    <button class="burger" id="burger" aria-label="Menu">☰</button>
+    <nav class="nav-links" id="navLinks">
+      <a href="/">Accueil</a>
+      <a href="/recherche">Rechercher du personnel</a>
+      <% if (user && user.role === 'admin') { %>
+        <a href="/admin">🛠 Admin</a>
+      <% } %>
+      <% if (user && user.role === 'user') { %>
+        <a href="/mes-contacts">Mes contacts</a>
+        <a href="/notifications" class="notif-bell" title="Notifications">🔔<% if (unreadNotifs) { %><span class="count"><%= unreadNotifs %></span><% } %></a>
+      <% } %>
+      <% if (user && user.role === 'agency') { %>
+        <a href="/notifications" class="notif-bell" title="Notifications">🔔<% if (unreadNotifs) { %><span class="count"><%= unreadNotifs %></span><% } %></a>
+        <a href="/agence">Tableau de bord</a>
+        <a href="/agence/annonces/nouvelle" class="btn btn-sm btn-primary">+ Publier une annonce</a>
+      <% } %>
+      <% if (!user) { %>
+        <a href="/connexion">Connexion</a>
+        <a href="/inscription" class="btn btn-sm btn-primary">Créer un compte</a>
+      <% } else { %>
+        <form method="post" action="/deconnexion" class="inline">
+          <span class="nav-user"><%= user.name %></span>
+          <button class="btn btn-sm btn-ghost" type="submit">Déconnexion</button>
+        </form>
+      <% } %>
+    </nav>
+  </div>
+</header>
+<% if (SITE && SITE.promo_active === '1' && SITE.promo_text) { %>
+  <div class="promo-bar">
+    <% if (SITE.promo_link) { %><a href="<%= SITE.promo_link %>"><%= SITE.promo_text %> →</a><% } else { %><span><%= SITE.promo_text %></span><% } %>
+  </div>
+<% } %>
+<% if (flash) { %>
+  <div class="flash flash-<%= flash.type %>" id="flash"><span><%= flash.msg %></span><button onclick="this.parentElement.remove()">✕</button></div>
+<% } %>

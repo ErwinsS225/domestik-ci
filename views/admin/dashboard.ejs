@@ -1,0 +1,122 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<section class="page">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">Espace propriétaire</span>
+        <h2>🛠 Table de pilotage</h2>
+      </div>
+    </div>
+    <%- include('tabs') %>
+
+    <!-- ================= ALERTES D'ACTION ================= -->
+    <% if (pendingPay > 0 || newMessages > 0) { %>
+      <div class="grid grid-2" style="margin-bottom:26px">
+        <% if (pendingPay > 0) { %>
+          <a href="/admin/paiements" class="card" style="padding:18px 22px; border-color:var(--orange); display:flex; justify-content:space-between; align-items:center">
+            <span><b>⏳ <%= pendingPay %> paiement<%= pendingPay > 1 ? 's' : '' %></b> en attente de validation</span>
+            <span class="btn btn-sm btn-primary">Traiter →</span>
+          </a>
+        <% } %>
+        <% if (newMessages > 0) { %>
+          <a href="/admin/messages" class="card" style="padding:18px 22px; border-color:var(--green); display:flex; justify-content:space-between; align-items:center">
+            <span><b>📬 <%= newMessages %> nouveau<%= newMessages > 1 ? 'x' : '' %></b> message<%= newMessages > 1 ? 's' : '' %> de contact</span>
+            <span class="btn btn-sm btn-green">Lire →</span>
+          </a>
+        <% } %>
+      </div>
+    <% } %>
+
+    <!-- ================= OBJECTIF MENSUEL ================= -->
+    <div class="panel" style="margin-bottom:26px">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px">
+        <h3>🎯 Objectif : <%= H.fcfa(GOAL) %> / mois</h3>
+        <b style="color:var(--green)"><%= H.fcfa(rev.m30) %> sur 30 jours (<%= Math.round(rev.m30 / GOAL * 100) %> %)</b>
+      </div>
+      <div class="goal"><div style="width:<%= Math.min(100, Math.round(rev.m30 / GOAL * 100)) %>%"></div></div>
+      <p class="muted" style="font-size:12.5px; margin-top:8px">
+        Piste type pour y arriver : 15 agences Premium (225 K) + 30 boosts Popularité (90 K) + 8 boosts VIP (80 K) + 60 déblocages (120 K) = <b>515 000 F</b>.
+      </p>
+    </div>
+
+    <!-- ================= REVENUS ================= -->
+    <div class="detail-grid" style="margin-bottom:26px">
+      <div class="panel">
+        <h3 style="margin-bottom:4px">📈 Revenus — 30 derniers jours</h3>
+        <p class="muted" style="font-size:12.5px; margin-bottom:6px">Survolez les barres pour le détail jour par jour</p>
+        <div class="chart">
+          <% days.forEach(d => { %>
+            <div class="bar-wrap" title="<%= d.label %> : <%= H.fcfa(d.t) %>">
+              <div class="bar" style="height:<%= Math.max(2, Math.round(d.t / maxDay * 100)) %>%"></div>
+            </div>
+          <% }) %>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:6px">
+          <span><%= days[0].label %></span><span><%= days[29].label %></span>
+        </div>
+      </div>
+      <div>
+        <div class="stat-cards" style="grid-template-columns:1fr 1fr">
+          <div class="card stat-card"><span class="n" style="color:var(--green)"><%= H.num(rev.total) %></span><span class="l">FCFA cumulés depuis le lancement</span></div>
+          <div class="card stat-card"><span class="n">🔓 <%= byKind.unlock ? byKind.unlock.n : 0 %></span><span class="l">Déblocages<span class="kpi-sub"><%= H.fcfa(byKind.unlock ? byKind.unlock.t : 0) %></span></span></div>
+          <div class="card stat-card"><span class="n">⚡ <%= byKind.boost ? byKind.boost.n : 0 %></span><span class="l">Boosts vendus<span class="kpi-sub"><%= H.fcfa(byKind.boost ? byKind.boost.t : 0) %></span></span></div>
+          <div class="card stat-card"><span class="n">⭐ <%= byKind.subscription ? byKind.subscription.n : 0 %></span><span class="l">Abonnements<span class="kpi-sub"><%= H.fcfa(byKind.subscription ? byKind.subscription.t : 0) %></span></span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= ACTIVITÉ ================= -->
+    <h3 style="margin-bottom:14px">🧭 Activité de la plateforme</h3>
+    <div class="stat-cards" style="margin-bottom:30px">
+      <div class="card stat-card"><span class="n"><%= counts.users %></span><span class="l">Chercheurs inscrits</span></div>
+      <div class="card stat-card"><span class="n"><%= counts.agencies %></span><span class="l">Agences<span class="kpi-sub">✔ <%= counts.agenciesVerified %> vérifiée(s)</span></span></div>
+      <div class="card stat-card"><span class="n"><%= counts.listingsActive %></span><span class="l">Annonces actives<span class="kpi-sub"><%= counts.listingsTotal %> au total</span></span></div>
+      <div class="card stat-card"><span class="n"><%= H.num(counts.views) %></span><span class="l">Vues cumulées</span></div>
+      <div class="card stat-card"><span class="n"><%= counts.reviews %></span><span class="l">Avis<span class="kpi-sub">moyenne ★ <%= H.noteFr(rating) %><% if (counts.reviewsMasked) { %> · 🚫 <%= counts.reviewsMasked %> masqué(s)<% } %></span></span></div>
+    </div>
+
+    <!-- ================= DERNIERS PAIEMENTS ================= -->
+    <h3 style="margin-bottom:14px">💳 Derniers paiements</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th>Payeur</th><th>Type</th><th>Opération</th><th>Montant</th><th>Statut</th></tr></thead>
+        <tbody>
+          <% lastPayments.forEach(p => { %>
+            <tr>
+              <td><%= H.fmtDate(p.created_at) %></td>
+              <td><%= p.payer %></td>
+              <td><%= KIND_LABELS[p.kind] || p.kind %></td>
+              <td><%= p.label %></td>
+              <td><b><%= H.fcfa(p.amount) %></b></td>
+              <td><span class="badge badge-verified">✔ <%= p.status %></span></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <!-- ================= JOURNAL D'AUDIT ================= -->
+    <% if (lastAudit.length) { %>
+      <h3 style="margin:38px 0 14px">🧾 Journal d'audit (actions admin récentes)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Admin</th><th>Action</th><th>Cible</th><th>Détail</th></tr></thead>
+          <tbody>
+            <% lastAudit.forEach(a => { %>
+              <tr>
+                <td style="white-space:nowrap"><%= H.fmtDate(a.created_at) %> <span class="muted" style="font-size:11px"><%= a.created_at.slice(11, 16) %></span></td>
+                <td><%= a.admin_name %></td>
+                <td><b><%= a.action %></b></td>
+                <td><%= a.target || '—' %></td>
+                <td class="muted" style="font-size:12.5px"><%= a.detail || '' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>
